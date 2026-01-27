@@ -1,37 +1,20 @@
 import streamlit as st
 from google import genai
 from google.genai import types
-from pypdf import PdfReader
+import pickle
 import numpy as np
 
-API_KEY = "------"
+API_KEY = "--"
 client = genai.Client(api_key=API_KEY)
 
 st.title("SpaceBot - Ask me anything about space")
 
-reader = PdfReader("pdf_file/solarsystem.pdf")
-text = ""
-for page in reader.pages:
-    text += page.extract_text()
+with open("rag_bot.pkl", "rb") as f:
+    data = pickle.load(f)
 
-chunks = []
-n = 800
-overlap = 150
+chunks_clean = data["chunks_clean"]
+embeddings = np.array(data["embeddings"])
 
-for i in range(0, len(text), n - overlap):
-    chunks.append(text[i:i + n])
-
-
-chunks_clean = []
-for chunk in chunks:
-    chunk = chunk.replace("\n", " ").replace("- ", "").strip()
-    if(
-       len(chunk) > 400
-       and chunk.count(".") >= 2
-       and "www.nasa.gov" not in chunk
-       and "OUR SOLAR SYSTEM" not in chunk.upper()
-    ):
-        chunks_clean.append(chunk)
 
 def create_embeddings(text_list, model="text-embedding-004", task_type="SEMANTIC_SIMILARITY"):
     embeddings = []
