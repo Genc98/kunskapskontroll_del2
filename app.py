@@ -4,7 +4,7 @@ from google.genai import types
 import pickle
 import numpy as np
 
-API_KEY = "AIzaSyDKOXHo58iOI8sYKrQOqqd8q5xZBUxcT88"
+API_KEY = "--"
 client = genai.Client(api_key=API_KEY)
 
 st.title("SpaceBot - Ask me anything about space")
