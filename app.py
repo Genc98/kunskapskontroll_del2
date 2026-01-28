@@ -4,7 +4,7 @@ from google.genai import types
 import pickle
 import numpy as np
 
-API_KEY = "----"
+API_KEY = "AIzaSyDKOXHo58iOI8sYKrQOqqd8q5xZBUxcT88"
 client = genai.Client(api_key=API_KEY)
 
 st.title("SpaceBot - Ask me anything about space")
@@ -15,23 +15,19 @@ with open("rag_bot.pkl", "rb") as f:
 chunks_clean = data["chunks_clean"]
 embeddings = np.array(data["embeddings"])
 
-
-def create_embeddings(text_list, model="gemini-embedding-001", task_type="SEMANTIC_SIMILARITY"):
-    embeddings = []
-    for i in range(0, len(text_list), 100):  
-        resp = client.models.embed_content(
-            model=model,
-            contents=text_list[i:i+100],
-            config=types.EmbedContentConfig(task_type=task_type)
-        )
-        embeddings += resp.embeddings  
-    return embeddings
+def embed_query(query):
+    resp = client.models.embed_content(
+        model="gemini-embedding-001",
+        contents=[query],
+        config=types.EmbedContentConfig(task_type="SEMANTIC_SIMILARITY")
+        ) 
+    return resp.embeddings[0].values
 
 def cosine_similarity(vec1, vec2):
     return (np.dot(vec1, vec2) / (np.linalg.norm(vec1)*np.linalg.norm(vec2)))
 
-def semantic_search(query, chunks_clean, embeddings, k=5):
-    query_embedding = create_embeddings([query])[0].values  
+def semantic_search(query, k=5):
+    query_embedding = embed_query(query) 
     
     similarity_scores = []
     
@@ -49,7 +45,7 @@ question = st.text_input("Ask any question about space.")
 
 if question:
     with st.spinner("Generating answer..."):
-        context = "\n".join(semantic_search(question, chunks_clean, embeddings))
+        context = "\n".join(semantic_search(question))
         system_prompt = """I'm going to ask you a question, and I want you to answer
             based only on the context I'm sending you, and no other information.
             If there's not enough information in the context to answer the question,
