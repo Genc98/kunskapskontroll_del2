@@ -4,7 +4,7 @@ from google.genai import types
 import pickle
 import numpy as np
 
-API_KEY = "--"
+API_KEY = "----"
 client = genai.Client(api_key=API_KEY)
 
 st.title("SpaceBot - Ask me anything about space")
@@ -16,7 +16,7 @@ chunks_clean = data["chunks_clean"]
 embeddings = np.array(data["embeddings"])
 
 
-def create_embeddings(text_list, model="text-embedding-004", task_type="SEMANTIC_SIMILARITY"):
+def create_embeddings(text_list, model="gemini-embedding-001", task_type="SEMANTIC_SIMILARITY"):
     embeddings = []
     for i in range(0, len(text_list), 100):  
         resp = client.models.embed_content(
@@ -27,8 +27,6 @@ def create_embeddings(text_list, model="text-embedding-004", task_type="SEMANTIC
         embeddings += resp.embeddings  
     return embeddings
 
-embeddings = create_embeddings(chunks_clean)
-
 def cosine_similarity(vec1, vec2):
     return (np.dot(vec1, vec2) / (np.linalg.norm(vec1)*np.linalg.norm(vec2)))
 
@@ -38,7 +36,7 @@ def semantic_search(query, chunks_clean, embeddings, k=5):
     similarity_scores = []
     
     for i, chunk_embedding in enumerate(embeddings):
-        similarity_score = cosine_similarity(query_embedding, chunk_embedding.values)
+        similarity_score = cosine_similarity(query_embedding, chunk_embedding)
         similarity_scores.append((i, similarity_score))
         
     similarity_scores.sort(key=lambda x: x[1], reverse=True)
