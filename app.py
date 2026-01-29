@@ -4,7 +4,7 @@ from google.genai import types
 import pickle
 import numpy as np
 
-API_KEY = "--"
+API_KEY = "----"
 client = genai.Client(api_key=API_KEY)
 
 st.title("SpaceBot - Ask me anything about space")
@@ -17,7 +17,7 @@ embeddings = np.array(data["embeddings"])
 
 def embed_query(query):
     resp = client.models.embed_content(
-        model="gemini-embedding-001",
+        model="text-embedding-004",
         contents=[query],
         config=types.EmbedContentConfig(task_type="SEMANTIC_SIMILARITY")
         ) 
