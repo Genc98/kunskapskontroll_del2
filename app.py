@@ -4,7 +4,7 @@ from google.genai import types
 import pickle
 import numpy as np 
 
-API_KEY = "---"
+API_KEY = "-----"
 client = genai.Client(api_key=API_KEY)
 
 st.markdown(
@@ -77,11 +77,13 @@ if question:
         
     with st.spinner("Generating answer..."):
             context = "\n".join(semantic_search(question))
-            system_prompt = """I'm going to ask you a question, and I want you to answer
-                based only on the context I'm sending you, and no other information.
-                If there's not enough information in the context to answer the question,
-                say "I don't know". Don't try to guess.
-                Keep your answer simple and break it down into nice paragraphs. """
+            system_prompt = """
+                I will ask you a question, and I want you to answer based on the given context and no other information. 
+                If there is not enough information, respond exactly like this:
+                "I don't know." 
+                Do not try to guess or answer.
+                Keep your answers simple and break them down to nice paragrahs.
+                Do not write phrases like "Based on the context" or anything similiar """
             response = client.models.generate_content(
                 model="gemini-2.0-flash",
                 config=types.GenerateContentConfig(system_instruction=system_prompt),
