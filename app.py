@@ -4,7 +4,7 @@ from google.genai import types
 import pickle
 import numpy as np 
 
-API_KEY = "-----"
+API_KEY = "---"
 client = genai.Client(api_key=API_KEY)
 
 st.markdown(
