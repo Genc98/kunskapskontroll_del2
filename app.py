@@ -2,10 +2,37 @@ import streamlit as st
 from google import genai
 from google.genai import types
 import pickle
-import numpy as np
+import numpy as np 
 
-API_KEY = "AIzaSyCxne_HTVCSd-Y0f1U6oL8LW6iElx4aKwE"
+API_KEY = "-----"
 client = genai.Client(api_key=API_KEY)
+
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background: linear-gradient(
+            to bottom,
+            #0b1026,
+            #1e3a8a,
+            #22c55e
+        );
+    }
+
+    h1, h2, h3 {
+        color: #ffffff;
+        text-shadow: 0 0 12px rgba(34,197,94,0.7);
+    }
+
+    p, span, label, div {
+        color: #f9fafb;
+    }
+    
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 
 st.title("SpaceBot - Ask me anything about space")
 
@@ -40,20 +67,30 @@ def semantic_search(query, k=5):
     
     return [chunks_clean[index] for index in top_indices]
 
-
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+    
 question = st.text_input("Ask any question about space.")
 
 if question:
+    st.session_state.chat_history.append({"role": "user", "content": question})
+        
     with st.spinner("Generating answer..."):
-        context = "\n".join(semantic_search(question))
-        system_prompt = """I'm going to ask you a question, and I want you to answer
-            based only on the context I'm sending you, and no other information.
-            If there's not enough information in the context to answer the question,
-            say "I don't know". Don't try to guess.
-            Keep your answer simple and break it down into nice paragraphs. """
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            config=types.GenerateContentConfig(system_instruction=system_prompt),
-            contents=f"Question: {question}\nContext: {context}"
-        )
-        st.markdown(response.text)
+            context = "\n".join(semantic_search(question))
+            system_prompt = """I'm going to ask you a question, and I want you to answer
+                based only on the context I'm sending you, and no other information.
+                If there's not enough information in the context to answer the question,
+                say "I don't know". Don't try to guess.
+                Keep your answer simple and break it down into nice paragraphs. """
+            response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                config=types.GenerateContentConfig(system_instruction=system_prompt),
+                contents=f"Question: {question}\nContext: {context}"
+            )
+            answer_text = response.text
+
+            st.session_state.chat_history.append({"role": "assistant", "content": answer_text})
+
+for msg in reversed(st.session_state.chat_history):
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
