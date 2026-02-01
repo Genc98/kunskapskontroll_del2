@@ -4,9 +4,11 @@ from google.genai import types
 import pickle
 import numpy as np 
 
+
 API_KEY = "---"
 client = genai.Client(api_key=API_KEY)
 
+## CSS-styling för applikationen. 
 st.markdown(
     """
     <style>
@@ -36,12 +38,14 @@ st.markdown(
 
 st.title("SpaceBot - Ask me anything about space")
 
+# Hämtar sparade embeddings och chunks från min Jupyter Notebook.
 with open("rag_bot.pkl", "rb") as f:
     data = pickle.load(f)
 
 chunks_clean = data["chunks_clean"]
 embeddings = np.array(data["embeddings"])
 
+#Här skapas embedding för använderens specifika fråga.
 def embed_query(query):
     resp = client.models.embed_content(
         model="text-embedding-004",
@@ -53,6 +57,7 @@ def embed_query(query):
 def cosine_similarity(vec1, vec2):
     return (np.dot(vec1, vec2) / (np.linalg.norm(vec1)*np.linalg.norm(vec2)))
 
+# Jämför frågans embeddning med chunks-embedding.
 def semantic_search(query, k=5):
     query_embedding = embed_query(query) 
     
@@ -67,15 +72,18 @@ def semantic_search(query, k=5):
     
     return [chunks_clean[index] for index in top_indices]
 
+# Historiken i chatten sparas
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
     
 question = st.text_input("Ask any question about space.")
 
 if question:
+     #Här läggs användarens fråga.
     st.session_state.chat_history.append({"role": "user", "content": question})
         
     with st.spinner("Generating answer..."):
+            #Här hämtas relevant kontext med hjälp av sematic_search.
             context = "\n".join(semantic_search(question))
             system_prompt = """
                 I will ask you a question, and I want you to answer based on the given context and no other information. 
@@ -84,6 +92,7 @@ if question:
                 Do not try to guess or answer.
                 Keep your answers simple and break them down to nice paragrahs.
                 Do not write phrases like "Based on the context" or anything similiar """
+            # Här genereras ett svar från AI-modellen
             response = client.models.generate_content(
                 model="gemini-2.0-flash",
                 config=types.GenerateContentConfig(system_instruction=system_prompt),
@@ -91,8 +100,10 @@ if question:
             )
             answer_text = response.text
 
+            # AI-svaret
             st.session_state.chat_history.append({"role": "assistant", "content": answer_text})
 
+# Visar senaste meddelanden överst
 for msg in reversed(st.session_state.chat_history):
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
