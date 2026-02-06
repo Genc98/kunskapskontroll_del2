@@ -1,21 +1,21 @@
-SpaceBot - Ask me anything about space.
+# SpaceBot - Ask me anything about space.
 
-Beskrivning:
+## Beskrivning:
 
 En RAG-chattbot som svarar på frågor om solsystemet. All fakta och information som chattbotten använder kommer från en PDF-fil från NASA som heter "Our Solarsystem". Chattbotten ska kunna svara på allt från enkla frågor till mer detaljerade frågor om vårt solsystem. 
 
-Hämta repot:
+## Hämta repot:
 
 - git clone <repo-url>
 
-Virtual Environment:
+## Virtual Environment:
 
 - uv init 
 
 - uv add jupyter
 
 
-Funktioner:
+## Funktioner:
 
 1. Inläsning av PDF-filen.
 2. Chunk-indelning.
@@ -24,7 +24,7 @@ Funktioner:
 5. Generera svar med hjälp av en prompt.
 6. Evaluering av svar från chattbotten.
 
-Filer: 
+## Filer: 
 
 chatbot.ipynb - Hela RAG-flödet byggs i denna fil.
 
