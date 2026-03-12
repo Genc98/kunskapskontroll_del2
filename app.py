@@ -45,6 +45,7 @@ with open("rag_bot.pkl", "rb") as f:
 chunks_clean = data["chunks_clean"]
 embeddings = np.array(data["embeddings"])
 
+
 #Här skapas embedding för använderens specifika fråga.
 def embed_query(query):
     resp = client.models.embed_content(
